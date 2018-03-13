@@ -1,4 +1,4 @@
-  /* Copyright (C) 1996-2017 Free Software Foundation, Inc.
+  /* Copyright (C) 1996-2016 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -25,7 +25,7 @@
 #include <features.h>
 
 #include <netinet/in.h>
-#include <bits/stdint-uintn.h>
+#include <stdint.h>
 #ifdef __USE_MISC
 /* This is necessary to make this include file properly replace the
    Sun version.  */
@@ -33,8 +33,10 @@
 #endif
 
 #ifdef __USE_GNU
-# include <bits/types/sigevent_t.h>
-# include <bits/types/struct_timespec.h>
+# define __need_sigevent_t
+# include <bits/siginfo.h>
+# define __need_timespec
+# include <time.h>
 #endif
 
 #include <bits/netdb.h>

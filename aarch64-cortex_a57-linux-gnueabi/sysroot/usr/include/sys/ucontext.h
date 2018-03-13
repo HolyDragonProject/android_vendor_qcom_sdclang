@@ -1,4 +1,4 @@
-/* Copyright (C) 1998-2017 Free Software Foundation, Inc.
+/* Copyright (C) 1998-2016 Free Software Foundation, Inc.
 
    This file is part of the GNU C Library.
 
@@ -22,14 +22,12 @@
 #define _SYS_UCONTEXT_H	1
 
 #include <features.h>
+#include <signal.h>
+#include <sys/procfs.h>
 
-#include <bits/types/sigset_t.h>
+/* We need the signal context definitions even if they are not used
+   included in <signal.h>.  */
 #include <bits/sigcontext.h>
-#include <bits/types/stack_t.h>
-
-#ifdef __USE_MISC
-# include <sys/procfs.h>
-
 
 typedef elf_greg_t greg_t;
 
@@ -38,7 +36,6 @@ typedef elf_gregset_t gregset_t;
 
 /* Structure to describe FPU registers.  */
 typedef elf_fpregset_t	fpregset_t;
-#endif
 
 /* Context to describe whole processor state.  This only describes
    the core registers; coprocessor registers get saved elsewhere
@@ -47,12 +44,12 @@ typedef elf_fpregset_t	fpregset_t;
 typedef struct sigcontext mcontext_t;
 
 /* Userlevel context.  */
-typedef struct ucontext_t
+typedef struct ucontext
   {
     unsigned long uc_flags;
-    struct ucontext_t *uc_link;
+    struct ucontext *uc_link;
     stack_t uc_stack;
-    sigset_t uc_sigmask;
+    __sigset_t uc_sigmask;
     mcontext_t uc_mcontext;
   } ucontext_t;
 

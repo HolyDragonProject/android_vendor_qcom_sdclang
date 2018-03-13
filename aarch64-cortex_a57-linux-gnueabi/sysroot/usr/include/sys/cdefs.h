@@ -1,4 +1,4 @@
-/* Copyright (C) 1992-2017 Free Software Foundation, Inc.
+/* Copyright (C) 1992-2016 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -55,18 +55,15 @@
 #  define __THROW	__attribute__ ((__nothrow__ __LEAF))
 #  define __THROWNL	__attribute__ ((__nothrow__))
 #  define __NTH(fct)	__attribute__ ((__nothrow__ __LEAF)) fct
-#  define __NTHNL(fct)  __attribute__ ((__nothrow__)) fct
 # else
 #  if defined __cplusplus && __GNUC_PREREQ (2,8)
 #   define __THROW	throw ()
 #   define __THROWNL	throw ()
 #   define __NTH(fct)	__LEAF_ATTR fct throw ()
-#   define __NTHNL(fct) fct throw ()
 #  else
 #   define __THROW
 #   define __THROWNL
 #   define __NTH(fct)	fct
-#   define __NTHNL(fct) fct
 #  endif
 # endif
 
@@ -79,15 +76,6 @@
 # define __NTH(fct)	fct
 
 #endif	/* GCC.  */
-
-/* Compilers that are not clang may object to
-       #if defined __clang__ && __has_extension(...)
-   even though they do not need to evaluate the right-hand side of the &&.  */
-#if defined __clang__ && defined __has_extension
-# define __glibc_clang_has_extension(ext) __has_extension (ext)
-#else
-# define __glibc_clang_has_extension(ext) 0
-#endif
 
 /* These two macros are not used in glibc anymore.  They are kept here
    only because some other projects expect the macros to be defined.  */
@@ -115,6 +103,31 @@
 #endif
 
 
+/* The standard library needs the functions from the ISO C90 standard
+   in the std namespace.  At the same time we want to be safe for
+   future changes and we include the ISO C99 code in the non-standard
+   namespace __c99.  The C++ wrapper header take case of adding the
+   definitions to the global namespace.  */
+#if defined __cplusplus && defined _GLIBCPP_USE_NAMESPACES
+# define __BEGIN_NAMESPACE_STD	namespace std {
+# define __END_NAMESPACE_STD	}
+# define __USING_NAMESPACE_STD(name) using std::name;
+# define __BEGIN_NAMESPACE_C99	namespace __c99 {
+# define __END_NAMESPACE_C99	}
+# define __USING_NAMESPACE_C99(name) using __c99::name;
+#else
+/* For compatibility we do not add the declarations into any
+   namespace.  They will end up in the global namespace which is what
+   old code expects.  */
+# define __BEGIN_NAMESPACE_STD
+# define __END_NAMESPACE_STD
+# define __USING_NAMESPACE_STD(name)
+# define __BEGIN_NAMESPACE_C99
+# define __END_NAMESPACE_C99
+# define __USING_NAMESPACE_C99(name)
+#endif
+
+
 /* Fortify support.  */
 #define __bos(ptr) __builtin_object_size (ptr, __USE_FORTIFY_LEVEL > 1)
 #define __bos0(ptr) __builtin_object_size (ptr, 0)
@@ -131,27 +144,21 @@
 # define __errordecl(name, msg) extern void name (void)
 #endif
 
-/* Support for flexible arrays.
-   Headers that should use flexible arrays only if they're "real"
-   (e.g. only if they won't affect sizeof()) should test
-   #if __glibc_c99_flexarr_available.  */
-#if defined __STDC_VERSION__ && __STDC_VERSION__ >= 199901L
+/* Support for flexible arrays.  */
+#if __GNUC_PREREQ (2,97)
+/* GCC 2.97 supports C99 flexible array members.  */
 # define __flexarr	[]
-# define __glibc_c99_flexarr_available 1
-#elif __GNUC_PREREQ (2,97)
-/* GCC 2.97 supports C99 flexible array members as an extension,
-   even when in C89 mode or compiling C++ (any version).  */
-# define __flexarr	[]
-# define __glibc_c99_flexarr_available 1
-#elif defined __GNUC__
-/* Pre-2.97 GCC did not support C99 flexible arrays but did have
-   an equivalent extension with slightly different notation.  */
-# define __flexarr	[0]
-# define __glibc_c99_flexarr_available 1
 #else
+# ifdef __GNUC__
+#  define __flexarr	[0]
+# else
+#  if defined __STDC_VERSION__ && __STDC_VERSION__ >= 199901L
+#   define __flexarr	[]
+#  else
 /* Some other non-C99 compiler.  Approximate with [1].  */
-# define __flexarr	[1]
-# define __glibc_c99_flexarr_available 0
+#   define __flexarr	[1]
+#  endif
+# endif
 #endif
 
 
@@ -242,22 +249,11 @@
 # define __attribute_noinline__ /* Ignore */
 #endif
 
-/* Since version 3.2, gcc allows marking deprecated functions.  */
+/* gcc allows marking deprecated functions.  */
 #if __GNUC_PREREQ (3,2)
 # define __attribute_deprecated__ __attribute__ ((__deprecated__))
 #else
 # define __attribute_deprecated__ /* Ignore */
-#endif
-
-/* Since version 4.5, gcc also allows one to specify the message printed
-   when a deprecated function is used.  clang claims to be gcc 4.2, but
-   may also support this feature.  */
-#if __GNUC_PREREQ (4,5) || \
-    __glibc_clang_has_extension (__attribute_deprecated_with_message__)
-# define __attribute_deprecated_msg__(msg) \
-	 __attribute__ ((__deprecated__ (msg)))
-#else
-# define __attribute_deprecated_msg__(msg) __attribute_deprecated__
 #endif
 
 /* At some point during the gcc 2.8 development the `format_arg' attribute
@@ -308,13 +304,8 @@
 
 /* Forces a function to be always inlined.  */
 #if __GNUC_PREREQ (3,2)
-/* The Linux kernel defines __always_inline in stddef.h (283d7573), and
-   it conflicts with this definition.  Therefore undefine it first to
-   allow either header to be included first.  */
-# undef __always_inline
 # define __always_inline __inline __attribute__ ((__always_inline__))
 #else
-# undef __always_inline
 # define __always_inline __inline
 #endif
 
@@ -417,7 +408,6 @@
 #endif
 
 #include <bits/wordsize.h>
-#include <bits/long-double.h>
 
 #if defined __LONG_DOUBLE_MATH_OPTIONAL && defined __NO_LONG_DOUBLE_MATH
 # define __LDBL_COMPAT 1
@@ -449,35 +439,6 @@
 #  define __REDIRECT_NTH_LDBL(name, proto, alias) \
   __REDIRECT_NTH (name, proto, alias)
 # endif
-#endif
-
-/* __glibc_macro_warning (MESSAGE) issues warning MESSAGE.  This is
-   intended for use in preprocessor macros.
-
-   Note: MESSAGE must be a _single_ string; concatenation of string
-   literals is not supported.  */
-#if __GNUC_PREREQ (4,8) || __glibc_clang_prereq (3,5)
-# define __glibc_macro_warning1(message) _Pragma (#message)
-# define __glibc_macro_warning(message) \
-  __glibc_macro_warning1 (GCC warning message)
-#else
-# define __glibc_macro_warning(msg)
-#endif
-
-/* Support for generic selection (ISO C11) is available in GCC since
-   version 4.9.  Previous versions do not provide generic selection,
-   even though they might set __STDC_VERSION__ to 201112L, when in
-   -std=c11 mode.  Thus, we must check for !defined __GNUC__ when
-   testing __STDC_VERSION__ for generic selection support.
-   On the other hand, Clang also defines __GNUC__, so a clang-specific
-   check is required to enable the use of generic selection.  */
-#if __GNUC_PREREQ (4, 9) \
-    || __glibc_clang_has_extension (c_generic_selections) \
-    || (!defined __GNUC__ && defined __STDC_VERSION__ \
-	&& __STDC_VERSION__ >= 201112L)
-# define __HAVE_GENERIC_SELECTION 1
-#else
-# define __HAVE_GENERIC_SELECTION 0
 #endif
 
 #endif	 /* sys/cdefs.h */

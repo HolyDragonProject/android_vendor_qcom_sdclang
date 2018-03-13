@@ -1,5 +1,5 @@
 /* Declarations for math functions.
-   Copyright (C) 1991-2017 Free Software Foundation, Inc.
+   Copyright (C) 1991-2016 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -23,28 +23,16 @@
 #ifndef	_MATH_H
 #define	_MATH_H	1
 
-#define __GLIBC_INTERNAL_STARTING_HEADER_IMPLEMENTATION
-#include <bits/libc-header-start.h>
+#include <features.h>
 
 __BEGIN_DECLS
-
-/* Get definitions of __intmax_t and __uintmax_t.  */
-#include <bits/types.h>
 
 /* Get machine-dependent vector math functions declarations.  */
 #include <bits/math-vector.h>
 
-/* Gather machine dependent type support.  */
-#include <bits/floatn.h>
-
 /* Get machine-dependent HUGE_VAL value (returned on overflow).
    On all IEEE754 machines, this is +Infinity.  */
 #include <bits/huge_val.h>
-
-#if __HAVE_FLOAT128 && __GLIBC_USE (IEC_60559_TYPES_EXT)
-# include <bits/huge_val_flt128.h>
-#endif
-
 #ifdef __USE_ISOC99
 # include <bits/huge_valf.h>
 # include <bits/huge_vall.h>
@@ -56,137 +44,8 @@ __BEGIN_DECLS
 # include <bits/nan.h>
 #endif /* __USE_ISOC99 */
 
-#if __GLIBC_USE (IEC_60559_BFP_EXT)
-/* Signaling NaN macros, if supported.  */
-# if __GNUC_PREREQ (3, 3)
-#  define SNANF (__builtin_nansf (""))
-#  define SNAN (__builtin_nans (""))
-#  define SNANL (__builtin_nansl (""))
-# endif
-#endif
-#if __HAVE_FLOAT128 && __GLIBC_USE (IEC_60559_TYPES_EXT)
-# define SNANF128 (__builtin_nansf128 (""))
-#endif
-
-/* Get __GLIBC_FLT_EVAL_METHOD.  */
-#include <bits/flt-eval-method.h>
-
-#ifdef __USE_ISOC99
-/* Define the following typedefs.
-
-    float_t	floating-point type at least as wide as `float' used
-		to evaluate `float' expressions
-    double_t	floating-point type at least as wide as `double' used
-		to evaluate `double' expressions
-*/
-# if __GLIBC_FLT_EVAL_METHOD == 0 || __GLIBC_FLT_EVAL_METHOD == 16
-typedef float float_t;
-typedef double double_t;
-# elif __GLIBC_FLT_EVAL_METHOD == 1
-typedef double float_t;
-typedef double double_t;
-# elif __GLIBC_FLT_EVAL_METHOD == 2
-typedef long double float_t;
-typedef long double double_t;
-# elif __GLIBC_FLT_EVAL_METHOD == 32
-typedef _Float32 float_t;
-typedef double double_t;
-# elif __GLIBC_FLT_EVAL_METHOD == 33
-typedef _Float32x float_t;
-typedef _Float32x double_t;
-# elif __GLIBC_FLT_EVAL_METHOD == 64
-typedef _Float64 float_t;
-typedef _Float64 double_t;
-# elif __GLIBC_FLT_EVAL_METHOD == 65
-typedef _Float64x float_t;
-typedef _Float64x double_t;
-# elif __GLIBC_FLT_EVAL_METHOD == 128
-typedef _Float128 float_t;
-typedef _Float128 double_t;
-# elif __GLIBC_FLT_EVAL_METHOD == 129
-typedef _Float128x float_t;
-typedef _Float128x double_t;
-# else
-#  error "Unknown __GLIBC_FLT_EVAL_METHOD"
-# endif
-#endif
-
-/* Define macros for the return values of ilogb and llogb, based on
-   __FP_LOGB0_IS_MIN and __FP_LOGBNAN_IS_MIN.
-
-    FP_ILOGB0	Expands to a value returned by `ilogb (0.0)'.
-    FP_ILOGBNAN	Expands to a value returned by `ilogb (NAN)'.
-    FP_LLOGB0	Expands to a value returned by `llogb (0.0)'.
-    FP_LLOGBNAN	Expands to a value returned by `llogb (NAN)'.
-
-*/
-
-#include <bits/fp-logb.h>
-#ifdef __USE_ISOC99
-# if __FP_LOGB0_IS_MIN
-#  define FP_ILOGB0	(-2147483647 - 1)
-# else
-#  define FP_ILOGB0	(-2147483647)
-# endif
-# if __FP_LOGBNAN_IS_MIN
-#  define FP_ILOGBNAN	(-2147483647 - 1)
-# else
-#  define FP_ILOGBNAN	2147483647
-# endif
-#endif
-#if __GLIBC_USE (IEC_60559_BFP_EXT)
-# if __WORDSIZE == 32
-#  define __FP_LONG_MAX 0x7fffffffL
-# else
-#  define __FP_LONG_MAX 0x7fffffffffffffffL
-# endif
-# if __FP_LOGB0_IS_MIN
-#  define FP_LLOGB0	(-__FP_LONG_MAX - 1)
-# else
-#  define FP_LLOGB0	(-__FP_LONG_MAX)
-# endif
-# if __FP_LOGBNAN_IS_MIN
-#  define FP_LLOGBNAN	(-__FP_LONG_MAX - 1)
-# else
-#  define FP_LLOGBNAN	__FP_LONG_MAX
-# endif
-#endif
-
-/* Get the architecture specific values describing the floating-point
-   evaluation.  The following symbols will get defined:
-
-    FP_FAST_FMA
-    FP_FAST_FMAF
-    FP_FAST_FMAL
-		If defined it indicates that the `fma' function
-		generally executes about as fast as a multiply and an add.
-		This macro is defined only iff the `fma' function is
-		implemented directly with a hardware multiply-add instructions.
-*/
-
-#include <bits/fp-fast.h>
-
-#if __GLIBC_USE (IEC_60559_BFP_EXT)
-/* Rounding direction macros for fromfp functions.  */
-enum
-  {
-    FP_INT_UPWARD =
-# define FP_INT_UPWARD 0
-      FP_INT_UPWARD,
-    FP_INT_DOWNWARD =
-# define FP_INT_DOWNWARD 1
-      FP_INT_DOWNWARD,
-    FP_INT_TOWARDZERO =
-# define FP_INT_TOWARDZERO 2
-      FP_INT_TOWARDZERO,
-    FP_INT_TONEARESTFROMZERO =
-# define FP_INT_TONEARESTFROMZERO 3
-      FP_INT_TONEARESTFROMZERO,
-    FP_INT_TONEAREST =
-# define FP_INT_TONEAREST 4
-      FP_INT_TONEAREST,
-  };
-#endif
+/* Get general and ISO C99 specific information.  */
+#include <bits/mathdef.h>
 
 /* The file <bits/mathcalls.h> contains the prototypes for all the
    actual math functions.  These macros are used for those prototypes,
@@ -219,13 +78,14 @@ enum
 #define _Mdouble_		double
 #define __MATH_PRECNAME(name,r)	__CONCAT(name,r)
 #define __MATH_DECLARING_DOUBLE  1
-#define __MATH_DECLARING_FLOATN  0
-#include <bits/mathcalls-helper-functions.h>
+#define _Mdouble_BEGIN_NAMESPACE __BEGIN_NAMESPACE_STD
+#define _Mdouble_END_NAMESPACE   __END_NAMESPACE_STD
 #include <bits/mathcalls.h>
 #undef	_Mdouble_
+#undef _Mdouble_BEGIN_NAMESPACE
+#undef _Mdouble_END_NAMESPACE
 #undef	__MATH_PRECNAME
 #undef __MATH_DECLARING_DOUBLE
-#undef __MATH_DECLARING_FLOATN
 
 #ifdef __USE_ISOC99
 
@@ -239,13 +99,14 @@ enum
 # define _Mdouble_		_Mfloat_
 # define __MATH_PRECNAME(name,r) name##f##r
 # define __MATH_DECLARING_DOUBLE  0
-# define __MATH_DECLARING_FLOATN  0
-# include <bits/mathcalls-helper-functions.h>
+# define _Mdouble_BEGIN_NAMESPACE __BEGIN_NAMESPACE_C99
+# define _Mdouble_END_NAMESPACE   __END_NAMESPACE_C99
 # include <bits/mathcalls.h>
 # undef	_Mdouble_
+# undef _Mdouble_BEGIN_NAMESPACE
+# undef _Mdouble_END_NAMESPACE
 # undef	__MATH_PRECNAME
 # undef __MATH_DECLARING_DOUBLE
-# undef __MATH_DECLARING_FLOATN
 
 # if !(defined __NO_LONG_DOUBLE_MATH && defined _LIBC) \
      || defined __LDBL_COMPAT \
@@ -284,42 +145,19 @@ extern long double __REDIRECT_NTH (nexttowardl,
 #  define _Mdouble_		_Mlong_double_
 #  define __MATH_PRECNAME(name,r) name##l##r
 #  define __MATH_DECLARING_DOUBLE  0
-#  define __MATH_DECLARING_FLOATN  0
+#  define _Mdouble_BEGIN_NAMESPACE __BEGIN_NAMESPACE_C99
+#  define _Mdouble_END_NAMESPACE   __END_NAMESPACE_C99
 #  define __MATH_DECLARE_LDOUBLE   1
-#  include <bits/mathcalls-helper-functions.h>
 #  include <bits/mathcalls.h>
 #  undef _Mdouble_
+#  undef _Mdouble_BEGIN_NAMESPACE
+#  undef _Mdouble_END_NAMESPACE
 #  undef __MATH_PRECNAME
 #  undef __MATH_DECLARING_DOUBLE
-#  undef __MATH_DECLARING_FLOATN
 
 # endif /* !(__NO_LONG_DOUBLE_MATH && _LIBC) || __LDBL_COMPAT */
 
 #endif	/* Use ISO C99.  */
-
-/* Include the file of declarations again, this time using `_Float128'
-   instead of `double' and appending f128 to each function name.  */
-
-#if __HAVE_DISTINCT_FLOAT128 || (__HAVE_FLOAT128 && !defined _LIBC)
-# ifndef _Mfloat128_
-#  define _Mfloat128_		_Float128
-# endif
-# define _Mdouble_		_Mfloat128_
-# define __MATH_PRECNAME(name,r) name##f128##r
-# define __MATH_DECLARING_DOUBLE  0
-# define __MATH_DECLARING_FLOATN  1
-# if __HAVE_DISTINCT_FLOAT128
-#  include <bits/mathcalls-helper-functions.h>
-# endif
-# if __GLIBC_USE (IEC_60559_TYPES_EXT)
-#  include <bits/mathcalls.h>
-# endif
-# undef _Mdouble_
-# undef __MATH_PRECNAME
-# undef __MATH_DECLARING_DOUBLE
-# undef __MATH_DECLARING_FLOATN
-#endif /* __HAVE_DISTINCT_FLOAT128.  */
-
 #undef	__MATHDECL_1
 #undef	__MATHDECL
 #undef	__MATHCALL
@@ -331,50 +169,41 @@ extern int signgam;
 #endif
 
 
-/* Depending on the type of TG_ARG, call an appropriately suffixed
-   version of FUNC with arguments (including parentheses) ARGS.
-   Suffixed functions may not exist for long double if it has the same
-   format as double, or for other types with the same format as float,
-   double or long double.  The behavior is undefined if the argument
-   does not have a real floating type.  The definition may use a
-   conditional expression, so all suffixed versions of FUNC must
-   return the same type (FUNC may include a cast if necessary rather
-   than being a single identifier).  */
-#ifdef __NO_LONG_DOUBLE_MATH
-# define __MATH_TG(TG_ARG, FUNC, ARGS)					\
-  (sizeof (TG_ARG) == sizeof (float) ? FUNC ## f ARGS : FUNC ARGS)
-#elif __HAVE_DISTINCT_FLOAT128
-# if __HAVE_GENERIC_SELECTION
-#  define __MATH_TG(TG_ARG, FUNC, ARGS)		\
-     _Generic ((TG_ARG),			\
-	       float: FUNC ## f ARGS,		\
-	       default: FUNC ARGS,		\
-	       long double: FUNC ## l ARGS,	\
-	       _Float128: FUNC ## f128 ARGS)
-# else
-#  define __MATH_TG(TG_ARG, FUNC, ARGS)					\
-     __builtin_choose_expr						\
-     (__builtin_types_compatible_p (__typeof (TG_ARG), float),		\
-      FUNC ## f ARGS,							\
-      __builtin_choose_expr						\
-      (__builtin_types_compatible_p (__typeof (TG_ARG), double),	\
-       FUNC ARGS,							\
-       __builtin_choose_expr						\
-       (__builtin_types_compatible_p (__typeof (TG_ARG), long double),	\
-	FUNC ## l ARGS,							\
-	FUNC ## f128 ARGS)))
-# endif
-#else
-# define __MATH_TG(TG_ARG, FUNC, ARGS)		\
-  (sizeof (TG_ARG) == sizeof (float)		\
-   ? FUNC ## f ARGS				\
-   : sizeof (TG_ARG) == sizeof (double)		\
-   ? FUNC ARGS					\
-   : FUNC ## l ARGS)
-#endif
-
 /* ISO C99 defines some generic macros which work on any data type.  */
 #ifdef __USE_ISOC99
+
+/* Get the architecture specific values describing the floating-point
+   evaluation.  The following symbols will get defined:
+
+    float_t	floating-point type at least as wide as `float' used
+		to evaluate `float' expressions
+    double_t	floating-point type at least as wide as `double' used
+		to evaluate `double' expressions
+
+    FLT_EVAL_METHOD
+		Defined to
+		  0	if `float_t' is `float' and `double_t' is `double'
+		  1	if `float_t' and `double_t' are `double'
+		  2	if `float_t' and `double_t' are `long double'
+		  else	`float_t' and `double_t' are unspecified
+
+    INFINITY	representation of the infinity value of type `float'
+
+    FP_FAST_FMA
+    FP_FAST_FMAF
+    FP_FAST_FMAL
+		If defined it indicates that the `fma' function
+		generally executes about as fast as a multiply and an add.
+		This macro is defined only iff the `fma' function is
+		implemented directly with a hardware multiply-add instructions.
+
+    FP_ILOGB0	Expands to a value returned by `ilogb (0.0)'.
+    FP_ILOGBNAN	Expands to a value returned by `ilogb (NAN)'.
+
+    DECIMAL_DIG	Number of decimal digits supported by conversion between
+		decimal and all internal floating-point formats.
+
+*/
 
 /* All floating-point numbers can be put in one of these categories.  */
 enum
@@ -405,24 +234,49 @@ enum
      && !defined __OPTIMIZE_SIZE__
 #  define fpclassify(x) __builtin_fpclassify (FP_NAN, FP_INFINITE,	      \
      FP_NORMAL, FP_SUBNORMAL, FP_ZERO, x)
+# elif defined __NO_LONG_DOUBLE_MATH
+#  define fpclassify(x) \
+     (sizeof (x) == sizeof (float) ? __fpclassifyf (x) : __fpclassify (x))
 # else
-#  define fpclassify(x) __MATH_TG ((x), __fpclassify, (x))
+#  define fpclassify(x) \
+     (sizeof (x) == sizeof (float)					      \
+      ? __fpclassifyf (x)						      \
+      : sizeof (x) == sizeof (double)					      \
+      ? __fpclassify (x) : __fpclassifyl (x))
 # endif
 
 /* Return nonzero value if sign of X is negative.  */
-# if __GNUC_PREREQ (6,0)
-#  define signbit(x) __builtin_signbit (x)
-# elif __GNUC_PREREQ (4,0)
-#  define signbit(x) __MATH_TG ((x), __builtin_signbit, (x))
+# if __GNUC_PREREQ (4,0)
+#  define signbit(x) \
+     (sizeof (x) == sizeof (float)                                            \
+      ? __builtin_signbitf (x)                                                        \
+      : sizeof (x) == sizeof (double)                                         \
+      ? __builtin_signbit (x) : __builtin_signbitl (x))
 # else
-#  define signbit(x) __MATH_TG ((x), __signbit, (x))
+#  ifdef __NO_LONG_DOUBLE_MATH
+#   define signbit(x) \
+     (sizeof (x) == sizeof (float) ? __signbitf (x) : __signbit (x))
+#  else
+#   define signbit(x) \
+     (sizeof (x) == sizeof (float)					      \
+      ? __signbitf (x)							      \
+      : sizeof (x) == sizeof (double)					      \
+      ? __signbit (x) : __signbitl (x))
+#  endif
 # endif
 
 /* Return nonzero value if X is not +-Inf or NaN.  */
 # if __GNUC_PREREQ (4,4) && !defined __SUPPORT_SNAN__
 #  define isfinite(x) __builtin_isfinite (x)
+# elif defined __NO_LONG_DOUBLE_MATH
+#  define isfinite(x) \
+     (sizeof (x) == sizeof (float) ? __finitef (x) : __finite (x))
 # else
-#  define isfinite(x) __MATH_TG ((x), __finite, (x))
+#  define isfinite(x) \
+     (sizeof (x) == sizeof (float)					      \
+      ? __finitef (x)							      \
+      : sizeof (x) == sizeof (double)					      \
+      ? __finite (x) : __finitel (x))
 # endif
 
 /* Return nonzero value if X is neither zero, subnormal, Inf, nor NaN.  */
@@ -436,21 +290,29 @@ enum
    we already have this functions `__isnan' and it is faster.  */
 # if __GNUC_PREREQ (4,4) && !defined __SUPPORT_SNAN__
 #  define isnan(x) __builtin_isnan (x)
+# elif defined __NO_LONG_DOUBLE_MATH
+#  define isnan(x) \
+     (sizeof (x) == sizeof (float) ? __isnanf (x) : __isnan (x))
 # else
-#  define isnan(x) __MATH_TG ((x), __isnan, (x))
+#  define isnan(x) \
+     (sizeof (x) == sizeof (float)					      \
+      ? __isnanf (x)							      \
+      : sizeof (x) == sizeof (double)					      \
+      ? __isnan (x) : __isnanl (x))
 # endif
 
 /* Return nonzero value if X is positive or negative infinity.  */
-# if __HAVE_DISTINCT_FLOAT128 && !__GNUC_PREREQ (7,0) \
-     && !defined __SUPPORT_SNAN__
-   /* __builtin_isinf_sign is broken for float128 only before GCC 7.0.  */
-#  define isinf(x) \
-    (__builtin_types_compatible_p (__typeof (x), _Float128) \
-     ? __isinff128 (x) : __builtin_isinf_sign (x))
-# elif __GNUC_PREREQ (4,4) && !defined __SUPPORT_SNAN__
+# if __GNUC_PREREQ (4,4) && !defined __SUPPORT_SNAN__
 #  define isinf(x) __builtin_isinf_sign (x)
+# elif defined __NO_LONG_DOUBLE_MATH
+#  define isinf(x) \
+     (sizeof (x) == sizeof (float) ? __isinff (x) : __isinf (x))
 # else
-#  define isinf(x) __MATH_TG ((x), __isinf, (x))
+#  define isinf(x) \
+     (sizeof (x) == sizeof (float)					      \
+      ? __isinff (x)							      \
+      : sizeof (x) == sizeof (double)					      \
+      ? __isinf (x) : __isinfl (x))
 # endif
 
 /* Bitmasks for the math_errhandling macro.  */
@@ -466,36 +328,19 @@ enum
 
 #endif /* Use ISO C99.  */
 
-#if __GLIBC_USE (IEC_60559_BFP_EXT)
-# include <bits/iscanonical.h>
-
+#ifdef __USE_GNU
 /* Return nonzero value if X is a signaling NaN.  */
-# define issignaling(x) __MATH_TG ((x), __issignaling, (x))
-
-/* Return nonzero value if X is subnormal.  */
-# define issubnormal(x) (fpclassify (x) == FP_SUBNORMAL)
-
-/* Return nonzero value if X is zero.  */
-# ifndef __cplusplus
-#  ifdef __SUPPORT_SNAN__
-#   define iszero(x) (fpclassify (x) == FP_ZERO)
-#  else
-#   define iszero(x) (((__typeof (x)) (x)) == 0)
-#  endif
-# else	/* __cplusplus */
-extern "C++" {
-template <class __T> inline bool
-iszero (__T __val)
-{
-#  ifdef __SUPPORT_SNAN__
-  return fpclassify (__val) == FP_ZERO;
-#  else
-  return __val == 0;
-#  endif
-}
-} /* extern C++ */
-# endif	/* __cplusplus */
-#endif /* Use IEC_60559_BFP_EXT.  */
+# ifdef __NO_LONG_DOUBLE_MATH
+#  define issignaling(x) \
+     (sizeof (x) == sizeof (float) ? __issignalingf (x) : __issignaling (x))
+# else
+#  define issignaling(x) \
+     (sizeof (x) == sizeof (float)					      \
+      ? __issignalingf (x)						      \
+      : sizeof (x) == sizeof (double)					      \
+      ? __issignaling (x) : __issignalingl (x))
+# endif
+#endif /* Use GNU.  */
 
 #ifdef	__USE_MISC
 /* Support for various different standard error handling behaviors.  */
@@ -599,21 +444,6 @@ extern int matherr (struct exception *__exc);
 # define M_SQRT1_2l	0.707106781186547524400844362104849039L /* 1/sqrt(2) */
 #endif
 
-#if __HAVE_FLOAT128 && defined __USE_GNU
-# define M_Ef128	__f128 (2.718281828459045235360287471352662498) /* e */
-# define M_LOG2Ef128	__f128 (1.442695040888963407359924681001892137) /* log_2 e */
-# define M_LOG10Ef128	__f128 (0.434294481903251827651128918916605082) /* log_10 e */
-# define M_LN2f128	__f128 (0.693147180559945309417232121458176568) /* log_e 2 */
-# define M_LN10f128	__f128 (2.302585092994045684017991454684364208) /* log_e 10 */
-# define M_PIf128	__f128 (3.141592653589793238462643383279502884) /* pi */
-# define M_PI_2f128	__f128 (1.570796326794896619231321691639751442) /* pi/2 */
-# define M_PI_4f128	__f128 (0.785398163397448309615660845819875721) /* pi/4 */
-# define M_1_PIf128	__f128 (0.318309886183790671537767526745028724) /* 1/pi */
-# define M_2_PIf128	__f128 (0.636619772367581343075535053490057448) /* 2/pi */
-# define M_2_SQRTPIf128	__f128 (1.128379167095512573896158903121545172) /* 2/sqrt(pi) */
-# define M_SQRT2f128	__f128 (1.414213562373095048801688724209698079) /* sqrt(2) */
-# define M_SQRT1_2f128	__f128 (0.707106781186547524400844362104849039) /* 1/sqrt(2) */
-#endif
 
 /* When compiling in strict ISO C compatible mode we must not use the
    inline functions since they, among other things, do not set the
@@ -645,70 +475,8 @@ extern int matherr (struct exception *__exc);
 /* Define special entry points to use when the compiler got told to
    only expect finite results.  */
 #if defined __FINITE_MATH_ONLY__ && __FINITE_MATH_ONLY__ > 0
-
-/* Include bits/math-finite.h for double.  */
-# define _Mdouble_ double
-# define __MATH_DECLARING_DOUBLE 1
-# define __MATH_DECLARING_LDOUBLE 0
-# define __MATH_DECLARING_FLOATN 0
-# define _MSUF_
 # include <bits/math-finite.h>
-# undef _Mdouble_
-# undef __MATH_DECLARING_DOUBLE
-# undef __MATH_DECLARING_LDOUBLE
-# undef __MATH_DECLARING_FLOATN
-# undef _MSUF_
-
-/* When __USE_ISOC99 is defined, include math-finite for float and
-   long double, as well.  */
-# ifdef __USE_ISOC99
-
-/* Include bits/math-finite.h for float.  */
-#  define _Mdouble_ float
-#  define __MATH_DECLARING_DOUBLE 0
-#  define __MATH_DECLARING_LDOUBLE 0
-#  define __MATH_DECLARING_FLOATN 0
-#  define _MSUF_ f
-#  include <bits/math-finite.h>
-#  undef _Mdouble_
-#  undef __MATH_DECLARING_DOUBLE
-#  undef __MATH_DECLARING_LDOUBLE
-#  undef __MATH_DECLARING_FLOATN
-#  undef _MSUF_
-
-/* Include bits/math-finite.h for long double.  */
-#  ifdef __MATH_DECLARE_LDOUBLE
-#   define _Mdouble_ long double
-#   define __MATH_DECLARING_DOUBLE 0
-#   define __MATH_DECLARING_LDOUBLE 1
-#   define __MATH_DECLARING_FLOATN 0
-#   define _MSUF_ l
-#   include <bits/math-finite.h>
-#   undef _Mdouble_
-#   undef __MATH_DECLARING_DOUBLE
-#   undef __MATH_DECLARING_LDOUBLE
-#   undef __MATH_DECLARING_FLOATN
-#   undef _MSUF_
-#  endif
-
-# endif /* __USE_ISOC99.  */
-
-/* Include bits/math-finite.h for float128.  */
-# if (__HAVE_DISTINCT_FLOAT128 || (__HAVE_FLOAT128 && !defined _LIBC)) \
-      && __GLIBC_USE (IEC_60559_TYPES_EXT)
-#  define _Mdouble_ _Float128
-#  define __MATH_DECLARING_DOUBLE 0
-#  define __MATH_DECLARING_LDOUBLE 0
-#  define __MATH_DECLARING_FLOATN 1
-#  define _MSUF_ f128
-#  include <bits/math-finite.h>
-#  undef _Mdouble_
-#  undef __MATH_DECLARING_DOUBLE
-#  undef __MATH_DECLARING_LDOUBLE
-#  undef __MATH_DECLARING_FLOATN
-#  undef _MSUF_
-# endif
-#endif /* __FINITE_MATH_ONLY__ > 0.  */
+#endif
 
 #ifdef __USE_ISOC99
 /* If we've still got undefined comparison macros, provide defaults.  */
@@ -761,23 +529,6 @@ extern int matherr (struct exception *__exc);
       fpclassify (__u) == FP_NAN || fpclassify (__v) == FP_NAN; }))
 # endif
 
-#endif
-
-#if __GLIBC_USE (IEC_60559_BFP_EXT)
-/* An expression whose type has the widest of the evaluation formats
-   of X and Y (which are of floating-point types).  */
-# if __FLT_EVAL_METHOD__ == 2 || __FLT_EVAL_METHOD__ > 64
-#  define __MATH_EVAL_FMT2(x, y) ((x) + (y) + 0.0L)
-# elif __FLT_EVAL_METHOD__ == 1 || __FLT_EVAL_METHOD__ > 32
-#  define __MATH_EVAL_FMT2(x, y) ((x) + (y) + 0.0)
-# else
-#  define __MATH_EVAL_FMT2(x, y) ((x) + (y))
-# endif
-
-/* Return X == Y but raising "invalid" and setting errno if X or Y is
-   a NaN.  */
-# define iseqsig(x, y) \
-  __MATH_TG (__MATH_EVAL_FMT2 (x, y), __iseqsig, ((x), (y)))
 #endif
 
 __END_DECLS

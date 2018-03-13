@@ -1,5 +1,5 @@
 /* Checking macros for stdio functions.
-   Copyright (C) 2004-2017 Free Software Foundation, Inc.
+   Copyright (C) 2004-2016 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
 
    The GNU C Library is free software; you can redistribute it and/or
@@ -222,7 +222,8 @@ __NTH (obstack_vprintf (struct obstack *__restrict __obstack,
 
 #endif
 
-#if __GLIBC_USE (DEPRECATED_GETS)
+#if !defined __USE_ISOC11 \
+    || (defined __cplusplus && __cplusplus <= 201103L && !defined __USE_GNU)
 extern char *__gets_chk (char *__str, size_t) __wur;
 extern char *__REDIRECT (__gets_warn, (char *__str), gets)
      __wur __warnattr ("please use fgets or getline instead, gets can't "

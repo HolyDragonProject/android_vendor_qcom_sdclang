@@ -8,7 +8,7 @@ set -e
 install="/usr/bin/install -c"
 grep="/bin/grep"
 sed="/bin/sed"
-awk="/usr/bin/gawk"
+awk="@@CT_awk@@"
 
 # Detect where the toolchain is:
 CT_PREFIX_DIR="$(cd "$(dirname "$0")/.."; pwd)"

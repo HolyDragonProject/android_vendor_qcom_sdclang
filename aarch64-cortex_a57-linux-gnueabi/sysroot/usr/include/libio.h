@@ -1,4 +1,4 @@
-/* Copyright (C) 1991-2017 Free Software Foundation, Inc.
+/* Copyright (C) 1991-2016 Free Software Foundation, Inc.
    This file is part of the GNU C Library.
    Written by Per Bothner <bothner@cygnus.com>.
 
@@ -119,7 +119,6 @@
 # define _IO_FLAGS2_SCANF_STD 16
 # define _IO_FLAGS2_NOCLOSE 32
 # define _IO_FLAGS2_CLOEXEC 64
-# define _IO_FLAGS2_NEED_LOCK 128
 #endif
 
 /* These are "formatting flags" matching the iostream fmtflags enum values. */
@@ -144,9 +143,10 @@
 
 struct _IO_jump_t;  struct _IO_FILE;
 
-/* During the build of glibc itself, _IO_lock_t will already have been
-   defined by internal headers.  */
-#ifndef _IO_lock_t_defined
+/* Handle lock.  */
+#ifdef _IO_MTSAFE_IO
+/* _IO_lock_t defined in internal headers during the glibc build.  */
+#else
 typedef void _IO_lock_t;
 #endif
 
@@ -353,7 +353,7 @@ typedef int __io_seek_fn (void *__cookie, _IO_off64_t *__pos, int __w);
 typedef int __io_close_fn (void *__cookie);
 
 
-#ifdef __USE_GNU
+#ifdef _GNU_SOURCE
 /* User-visible names for the above.  */
 typedef __io_read_fn cookie_read_function_t;
 typedef __io_write_fn cookie_write_function_t;
@@ -441,19 +441,20 @@ extern void _IO_flockfile (_IO_FILE *) __THROW;
 extern void _IO_funlockfile (_IO_FILE *) __THROW;
 extern int _IO_ftrylockfile (_IO_FILE *) __THROW;
 
-#define _IO_peekc(_fp) _IO_peekc_unlocked (_fp)
-#define _IO_flockfile(_fp) /**/
-#define _IO_funlockfile(_fp) /**/
-#define _IO_ftrylockfile(_fp) /**/
-#ifndef _IO_cleanup_region_start
-#define _IO_cleanup_region_start(_fct, _fp) /**/
-#endif
-#ifndef _IO_cleanup_region_end
-#define _IO_cleanup_region_end(_Doit) /**/
-#endif
-
-#define _IO_need_lock(_fp) \
-  (((_fp)->_flags2 & _IO_FLAGS2_NEED_LOCK) != 0)
+#ifdef _IO_MTSAFE_IO
+# define _IO_peekc(_fp) _IO_peekc_locked (_fp)
+# define _IO_flockfile(_fp) \
+  if (((_fp)->_flags & _IO_USER_LOCK) == 0) _IO_flockfile (_fp)
+# define _IO_funlockfile(_fp) \
+  if (((_fp)->_flags & _IO_USER_LOCK) == 0) _IO_funlockfile (_fp)
+#else
+# define _IO_peekc(_fp) _IO_peekc_unlocked (_fp)
+# define _IO_flockfile(_fp) /**/
+# define _IO_funlockfile(_fp) /**/
+# define _IO_ftrylockfile(_fp) /**/
+# define _IO_cleanup_region_start(_fct, _fp) /**/
+# define _IO_cleanup_region_end(_Doit) /**/
+#endif /* !_IO_MTSAFE_IO */
 
 extern int _IO_vfscanf (_IO_FILE * __restrict, const char * __restrict,
 			_IO_va_list, int *__restrict);

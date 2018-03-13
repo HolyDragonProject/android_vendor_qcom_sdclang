@@ -14,7 +14,6 @@
 #define SYS_adjtimex __NR_adjtimex
 #define SYS_arch_specific_syscall __NR_arch_specific_syscall
 #define SYS_bind __NR_bind
-#define SYS_bpf __NR_bpf
 #define SYS_brk __NR_brk
 #define SYS_capget __NR_capget
 #define SYS_capset __NR_capset
@@ -76,7 +75,6 @@
 #define SYS_getpid __NR_getpid
 #define SYS_getppid __NR_getppid
 #define SYS_getpriority __NR_getpriority
-#define SYS_getrandom __NR_getrandom
 #define SYS_getresgid __NR_getresgid
 #define SYS_getresuid __NR_getresuid
 #define SYS_getrlimit __NR_getrlimit
@@ -115,7 +113,6 @@
 #define SYS_lsetxattr __NR_lsetxattr
 #define SYS_madvise __NR_madvise
 #define SYS_mbind __NR_mbind
-#define SYS_memfd_create __NR_memfd_create
 #define SYS_migrate_pages __NR_migrate_pages
 #define SYS_mincore __NR_mincore
 #define SYS_mkdirat __NR_mkdirat
@@ -174,7 +171,6 @@
 #define SYS_remap_file_pages __NR_remap_file_pages
 #define SYS_removexattr __NR_removexattr
 #define SYS_renameat __NR_renameat
-#define SYS_renameat2 __NR_renameat2
 #define SYS_request_key __NR_request_key
 #define SYS_restart_syscall __NR_restart_syscall
 #define SYS_rt_sigaction __NR_rt_sigaction
@@ -188,16 +184,13 @@
 #define SYS_sched_get_priority_max __NR_sched_get_priority_max
 #define SYS_sched_get_priority_min __NR_sched_get_priority_min
 #define SYS_sched_getaffinity __NR_sched_getaffinity
-#define SYS_sched_getattr __NR_sched_getattr
 #define SYS_sched_getparam __NR_sched_getparam
 #define SYS_sched_getscheduler __NR_sched_getscheduler
 #define SYS_sched_rr_get_interval __NR_sched_rr_get_interval
 #define SYS_sched_setaffinity __NR_sched_setaffinity
-#define SYS_sched_setattr __NR_sched_setattr
 #define SYS_sched_setparam __NR_sched_setparam
 #define SYS_sched_setscheduler __NR_sched_setscheduler
 #define SYS_sched_yield __NR_sched_yield
-#define SYS_seccomp __NR_seccomp
 #define SYS_semctl __NR_semctl
 #define SYS_semget __NR_semget
 #define SYS_semop __NR_semop
@@ -283,7 +276,6 @@
 #define SYS_adjtimex __NR_adjtimex
 #define SYS_arch_specific_syscall __NR_arch_specific_syscall
 #define SYS_bind __NR_bind
-#define SYS_bpf __NR_bpf
 #define SYS_brk __NR_brk
 #define SYS_capget __NR_capget
 #define SYS_capset __NR_capset
@@ -345,7 +337,6 @@
 #define SYS_getpid __NR_getpid
 #define SYS_getppid __NR_getppid
 #define SYS_getpriority __NR_getpriority
-#define SYS_getrandom __NR_getrandom
 #define SYS_getresgid __NR_getresgid
 #define SYS_getresuid __NR_getresuid
 #define SYS_getrlimit __NR_getrlimit
@@ -384,7 +375,6 @@
 #define SYS_lsetxattr __NR_lsetxattr
 #define SYS_madvise __NR_madvise
 #define SYS_mbind __NR_mbind
-#define SYS_memfd_create __NR_memfd_create
 #define SYS_migrate_pages __NR_migrate_pages
 #define SYS_mincore __NR_mincore
 #define SYS_mkdirat __NR_mkdirat
@@ -443,7 +433,6 @@
 #define SYS_remap_file_pages __NR_remap_file_pages
 #define SYS_removexattr __NR_removexattr
 #define SYS_renameat __NR_renameat
-#define SYS_renameat2 __NR_renameat2
 #define SYS_request_key __NR_request_key
 #define SYS_restart_syscall __NR_restart_syscall
 #define SYS_rt_sigaction __NR_rt_sigaction
@@ -457,16 +446,13 @@
 #define SYS_sched_get_priority_max __NR_sched_get_priority_max
 #define SYS_sched_get_priority_min __NR_sched_get_priority_min
 #define SYS_sched_getaffinity __NR_sched_getaffinity
-#define SYS_sched_getattr __NR_sched_getattr
 #define SYS_sched_getparam __NR_sched_getparam
 #define SYS_sched_getscheduler __NR_sched_getscheduler
 #define SYS_sched_rr_get_interval __NR_sched_rr_get_interval
 #define SYS_sched_setaffinity __NR_sched_setaffinity
-#define SYS_sched_setattr __NR_sched_setattr
 #define SYS_sched_setparam __NR_sched_setparam
 #define SYS_sched_setscheduler __NR_sched_setscheduler
 #define SYS_sched_yield __NR_sched_yield
-#define SYS_seccomp __NR_seccomp
 #define SYS_semctl __NR_semctl
 #define SYS_semget __NR_semget
 #define SYS_semop __NR_semop
